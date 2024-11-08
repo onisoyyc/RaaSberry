@@ -55,5 +55,14 @@ Instructions for setting up RaaSBerry will be added once the project reaches a u
 - [ ] Write detailed documentation for installation and usage (research-focused)
 - [ ] Publish results, findings, and lessons learned from the project
 
+---
+
+## Authors
+
+- **Daniel Osah** - [onisoyyc](https://github.com/onisoyyc)
+- **Alexander Myrdal** - [GitHub](#) (TBA)
+- **Chinua Chukwuelue** - [GitHub](#) (TBA)
+
+---
 ## Contributing
 This project is open to contributions for research and development purposes only. Please follow the contribution guidelines and ensure all code aligns with the project’s ethical guidelines.
