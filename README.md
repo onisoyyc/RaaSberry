@@ -1,7 +1,3 @@
-Here’s a basic `README.md` file for the early stages of your malware project, **RaaSBerry**. This includes a project overview, installation instructions placeholder, and a roadmap that outlines initial steps and goals. Given the nature of the project, I’ve framed it as an educational tool for understanding ransomware techniques in a controlled environment.
-
----
-
 # RaaSBerry 🍓
 
 ## Overview
@@ -61,7 +57,3 @@ Instructions for setting up RaaSBerry will be added once the project reaches a u
 
 ## Contributing
 This project is open to contributions for research and development purposes only. Please follow the contribution guidelines and ensure all code aligns with the project’s ethical guidelines.
-
----
-
-Let me know if you’d like to add any specific sections, or if there’s anything to clarify for the roadmap!
