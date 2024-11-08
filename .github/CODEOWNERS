@@ -4,3 +4,5 @@
 
 # Code owner for a specific directory
 # ex. /docs/ @collaborator-username
+*.c @onisoyyc 
+# all C code will be owned by onisoyyc
