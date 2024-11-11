@@ -59,9 +59,9 @@ Instructions for setting up RaaSBerry will be added once the project reaches a u
 
 ## Authors
 
-- **Daniel Osah** - [onisoyyc](https://github.com/onisoyyc)
-- **Alexander Myrdal** - [GitHub](#) (TBA)
-- **Chinua Chukwuelue** - [GitHub](#) (TBA)
+- **** - [onisoyyc](https://github.com/onisoyyc)
+- **** - [almyrd](https://github.com/almyrd)
+- **** - [3v3rythingzRosey](https://github.com/3v3rythingzRosey)
 
 ---
 ## Contributing
