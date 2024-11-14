@@ -30,8 +30,8 @@ Instructions for setting up RaaSBerry will be added once the project reaches a u
   - `LICENSE` (TBD)
 
 ### Phase 2: Basic Encryption & Decryption Mechanism
-- [ ] Implement temporary file encryption and automatic decryption after a set period
-- [ ] Develop encryption key generation and secure key storage (while files are locked)
+- [ ] Implement temporary file encryption and automatic decryption after a set condition is met
+- [ ] Optional: Develop encryption key generation and secure key storage (while files are locked)
 - [ ] Ensure minimal impact to file integrity during encryption/decryption
 
 ### Phase 3: Evasion Techniques
@@ -42,7 +42,7 @@ Instructions for setting up RaaSBerry will be added once the project reaches a u
 - [ ] Apply code obfuscation to core functions
 - [ ] Test different obfuscation techniques and evaluate effectiveness against static analysis
 
-### Phase 5: Anti-Analysis Techniques
+### Phase 5: Anti-Analysis Techniques [Optional]
 - [ ] Implement sandbox and analysis detection methods
 - [ ] Pack critical functions and enable runtime unpacking to evade dynamic analysis
 
