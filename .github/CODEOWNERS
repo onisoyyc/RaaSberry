@@ -4,8 +4,8 @@
 
 # Code owner for a specific directory
 # ex. /docs/ @collaborator-username
-*.cpp @onisoyyc 
-*.cpp @almyrd
-*.cpp @3v3rythingzRosey
+* @onisoyyc 
+* @almyrd
+* @3v3rythingzRosey
 
 # all C code will be owned by onisoyyc
