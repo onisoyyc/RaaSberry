@@ -4,3 +4,5 @@ dumbtests.c
 Encrypt.py
 LockImUp.c
 RassMalware.c
+.idx
+dev.nix
