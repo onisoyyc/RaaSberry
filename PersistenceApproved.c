@@ -1,0 +1,11 @@
+/*
+Windows persistence via StartUpApproved
+*/
+
+#include <windows.h>
+#include <stdio.h>
+
+int main(int argc, char* argv[]) {
+    HKEY hkey = NULL;
+    BYTE data[] = {{0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+}
