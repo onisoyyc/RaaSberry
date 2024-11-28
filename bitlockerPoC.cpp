@@ -1,3 +1,18 @@
+/*
+ This code is a PoC but has serious limitations
+
+ To work, the application must run with admin privs, does not handle recovery keys
+ or passwords. 
+ Will need additional methods to configure these aspects I am looking at using Win32_EncryptVolume methods
+ such as :
+    ProtectKeyWithNumericalPassword 
+    ProtectKeyWithTPM (probably not though)
+    
+The other limitation is that this code requires bitlocker to be enabled and configured.
+Im looking into a VBscript that can check if this is the case and delete the entire application if not
+:).
+
+*/
 #include <iostream>
 #include <windows.h>
 #include <wbemidl.h>
