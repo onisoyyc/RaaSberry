@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 //macros
-
 const char* k = "[+]";
 const char* e = "[-]";
 const char* i = "[*]";
