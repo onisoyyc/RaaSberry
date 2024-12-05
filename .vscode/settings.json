@@ -3,6 +3,7 @@
     "IDX.aI.enableCodebaseIndexing": true,
     "files.associations": {
         "cstdlib": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "ostream": "cpp"
     }
 }

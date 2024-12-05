@@ -76,7 +76,7 @@ bool ElevatePrivileges() {
     return false;
 }
 
-void EncryptDrive(const std::wstring& driveLetter) {
+bool EncryptDrive(const std::wstring& driveLetter) {
     HRESULT hres;
 
     // Initialize COM library for use
@@ -84,7 +84,7 @@ void EncryptDrive(const std::wstring& driveLetter) {
     // Check if COM library initialization failed.
     if (FAILED(hres)) {
         std::wcerr << L"Failed to initialize COM library. Error code: " << hres << std::endl;
-        return;
+        return false;
     }
 
     // Initialize security for process.
@@ -102,7 +102,7 @@ void EncryptDrive(const std::wstring& driveLetter) {
     if (FAILED(hres)) {
         std::wcerr << L"Failed to initialize security. Error code: " << hres << std::endl;
         CoUninitialize();
-        return;
+        return false;
     }
 
     // Obtain the initial locator to WMI.
@@ -118,7 +118,7 @@ void EncryptDrive(const std::wstring& driveLetter) {
     if (FAILED(hres)) {
         std::wcerr << L"Failed to create IWbemLocator object. Error code: " << hres << std::endl;
         CoUninitialize();
-        return;
+        return false;
     }
 
     // Connect to WMI through the IWbemLocator::ConnectServer method.
@@ -137,7 +137,7 @@ void EncryptDrive(const std::wstring& driveLetter) {
         std::wcerr << L"Could not connect to WMI. Error code: " << hres << std::endl;
         pLoc->Release();
         CoUninitialize();
-        return;
+        return false;
     }
 
     // Set the proxy so that impersonation of the client occurs.
@@ -156,7 +156,7 @@ void EncryptDrive(const std::wstring& driveLetter) {
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
-        return;
+        return false;
     } // essentially, this will allow the server to impersonate the client and take on the security context of the client.
     // If the client is administrator, the server will also be able to perform administrative tasks.
     // Therefore, the next step is to check if the user is an administrator, and if not, attempt to elevate, WITHOUT prompting the user.
@@ -165,7 +165,7 @@ void EncryptDrive(const std::wstring& driveLetter) {
         if (!ElevatePrivileges()) {
             std::wcerr << L"Failed to elevate privileges. Error code: " << GetLastError() << std::endl;
             pSvc -> Release();
-            pLov -> Release();
+            pLoc -> Release();
             CoUninitialize();
             return false; // or appropriate return value depending on the function
         }
@@ -185,7 +185,7 @@ void EncryptDrive(const std::wstring& driveLetter) {
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
-        return;
+        return false;
     }
 
     IWbemClassObject* pObj = NULL;
@@ -229,6 +229,7 @@ void EncryptDrive(const std::wstring& driveLetter) {
     pSvc->Release();
     pLoc->Release();
     CoUninitialize();
+    return true;
 }
 // check if bitlocker is enabled
 bool IsBitlockerEnabled(const std::wstring& driveLetter) {
