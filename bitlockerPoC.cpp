@@ -60,7 +60,7 @@ bool ElevatePrivileges() {
         sei.lpFile = szPath;
         sei.hwnd = NULL;
         sei.nShow = SW_HIDE; // Hide the window
-        sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_CONSOLE;
+        sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NO_CONSOLE;
 
         if (ShellExecuteEx(&sei)) {
             if (sei.hProcess != NULL){
