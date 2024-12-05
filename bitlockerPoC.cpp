@@ -166,6 +166,12 @@ bool IsBitlockerEnabled(const std::wstring& driveLetter) {
     HRESULT hres;
     bool isEnabled = false;
 }
+// enable bitlocker
+bool EnableBitlocker(const std::wstring& driveLetter) {
+    EncryptDrive(driveLetter);
+    sleep(5000);
+    return IsBitlockerEnabled(driveLetter);
+}
 // main function
 int main() {
     std::wstring drive = L"C"; // Specify the drive to encrypt (e.g., C)
