@@ -23,7 +23,7 @@ or attempt to enable it and continue.
 #include <shlobj.h>
 
 // Check admin rights
-bool IsUserAdmin() {
+bool IsRunAsAdmin() {
     BOOL isAdmin = FALSE;
     PSID adminGroup = NULL;
     SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY; // Define the authority for the SID
@@ -45,6 +45,31 @@ bool IsUserAdmin() {
     return isAdmin;
 }
 
+// Attempt silent elevation
+bool ElevatePrivileges() {
+    wchar_t szPath[MAX_PATH];
+    if (GetModuleFileName(NULL, szPath, MAX_PATH)) {
+        // Launch itself as admin
+        SHELLEXECUTEINFOW sei = { sizeof(SHELLEXECUTEINFO) };
+        sei.lpVerb = L"runas";
+        sei.lpFile = szPath;
+        sei.hwnd = NULL;
+        sei.nShow = SW_HIDE; // Hide the window
+        sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_CONSOLE;
+
+        if (ShellExecuteEx(&sei)) {
+            if (sei.hProcess != NULL){
+                // Wait for the elevated process to finish
+                WaitForSingleObject(sei.hProcess, INFINITE);
+                CloseHandle(sei.hProcess);
+                // Exit current non-elevated process
+                ExitProcess(0);
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 void EncryptDrive(const std::wstring& driveLetter) {
     HRESULT hres;
