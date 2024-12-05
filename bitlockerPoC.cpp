@@ -18,9 +18,10 @@ or attempt to enable it and continue.
 #include <windows.h>
 #include <wbemidl.h>
 #include <cstdio> // to remove application if it fails
-#pragma comment(lib, "wbemuuid.lib")
 #include <security.h>
 #include <shlobj.h>
+
+#pragma comment(lib, "wbemuuid.lib")
 
 // Check admin rights
 bool IsRunAsAdmin() {
@@ -155,7 +156,16 @@ void EncryptDrive(const std::wstring& driveLetter) {
     } // essentially, this will allow the server to impersonate the client and take on the security context of the client.
     // If the client is administrator, the server will also be able to perform administrative tasks.
     // Therefore, the next step is to check if the user is an administrator, and if not, attempt to elevate, WITHOUT prompting the user.
-
+    if (!IsRunAsAdmin()) {
+        std::wcout << L"Attempting to elevate privileges..." << std::endl;
+        if (!ElevatePrivileges()) {
+            std::wcerr << L"Failed to elevate privileges. Error code: " << GetLastError() << std::endl;
+            pSvc -> Release();
+            pLov -> Release();
+            CoUninitialize();
+            return false; // or appropriate return value depending on the function
+        }
+    }
     // Get the EncryptableVolume object for the specified drive.
     std::wstring query = L"SELECT * FROM Win32_EncryptableVolume WHERE DriveLetter = '" + driveLetter + L":\\'";
     IEnumWbemClassObject* pEnumerator = NULL;
