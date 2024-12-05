@@ -13,3 +13,6 @@ https://cocomelonc.github.io/pentest/2021/09/29/findmyprocess.html
 
 Maldev Academy: 
 https://github.com/Maldev-Academy
+
+Red Teaming 101: Executing Malicious Shellcode with C++ (A Guide for Beginners):
+https://medium.com/@lsecqt/red-teaming-101-executing-malicious-shellcode-with-c-a-guide-for-beginners-439bff63721d
