@@ -14,6 +14,9 @@ or attempt to enable it and continue.
 :).
 
 */
+
+#define SECURITY_WIN32 // functions to contorl applications in user mode.
+
 #include <iostream>
 #include <windows.h>
 #include <wbemidl.h>
@@ -22,6 +25,7 @@ or attempt to enable it and continue.
 #include <shlobj.h>
 
 #pragma comment(lib, "wbemuuid.lib")
+
 
 // Check admin rights
 bool IsRunAsAdmin() {
