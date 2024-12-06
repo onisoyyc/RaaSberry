@@ -1,3 +1,8 @@
+/* 
+The problem with madryga.c is that it would take way too long to encrypt everything in
+a folder. So instead, this version, will only partially encrypt every file. 
+Similar to Conti ransomware. */
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
