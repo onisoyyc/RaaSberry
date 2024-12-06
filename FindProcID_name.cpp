@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 
     pid = findProcess(argv[1]);
     if (pid) {
-        printf("Process %s is running with PID %d\n", argv[1], pid);
+        printf("Process %s is running with PID %d\n", argv[1], pid); // print process name and PID
     }
     return 0;
 }
