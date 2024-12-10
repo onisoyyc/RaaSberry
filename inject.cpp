@@ -1,9 +1,8 @@
-#include <windows.h>
+#include <windows.h> // Developing for windows on linux, not a problem.
 #include <stdio.h>
 #include <stdlib.h>
 
 //macros
-
 const char* k = "[+]";
 const char* e = "[-]";
 const char* i = "[*]";
