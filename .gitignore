@@ -6,5 +6,4 @@ LockImUp.c
 RassMalware.c
 .idx
 dev.nix
-PE_files/
-encryption/madryga.exe
+*.exe
