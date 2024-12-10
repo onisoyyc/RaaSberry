@@ -1,8 +1,7 @@
-#include <windows.h> // Developing for windows on linux, not a problem.
+#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-// Technique to inject a shellcode into a process.
 //macros
 
 const char* k = "[+]";

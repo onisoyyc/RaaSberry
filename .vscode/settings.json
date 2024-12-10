@@ -1,7 +1,4 @@
 {
     "IDX.aI.enableInlineCompletion": true,
-    "IDX.aI.enableCodebaseIndexing": true,
-    "files.associations": {
-        "cstdlib": "cpp"
-    }
+    "IDX.aI.enableCodebaseIndexing": true
 }
